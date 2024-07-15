@@ -1,0 +1,47 @@
+pipeline {
+    agent {
+        kubernetes {
+            yamlFile 'kaniko-agent.yml'
+        }
+    }
+
+    environment {
+        image_name = 'app-nodejs'
+        image_tag = 'latest'
+        registry_url = 'docker.io/'
+        aws_region = 'us-east-1'
+        secret_name = 'dockerhubcredentials'
+    }
+
+    stages {
+        stage('Fetch Docker Hub Credentials') {
+            steps {
+                script {
+                    withAWS(credentials: 'aws-credentials-id') {
+                        def secret = awsSecretsManager(secrets: [['$class': 'AWSSecretsManagerSecret', secretId: env.secret_name]])
+                        withCredentials([usernamePassword(credentialsId: '', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', secret: secret)]) {
+                            echo "Fetched Docker Hub credentials"
+                            echo "DOCKER_USERNAME: $DOCKER_USERNAME"
+                            echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build and Push Docker Image') {
+            steps {
+                container('kaniko') {
+                    script {
+                        sh """
+                        echo \$DOCKER_USERNAME
+                        echo \$DOCKER_PASSWORD
+
+                        /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=\$registry_url\$image_name:\$image_tag
+                        """
+                    }
+                }
+            }
+        }
+    }
+}
