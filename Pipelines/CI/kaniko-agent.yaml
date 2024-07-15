@@ -31,6 +31,11 @@ spec:
     - name: kaniko-home
       emptyDir: {}
     - name: aws-secrets
-      secret:
-        secretName: dockerhubcredentials
-        provider: aws-secrets-manager
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true  
+        volumeAttributes:
+          type: encrypted  
+        secrets:
+          - secretName: dockerhubcredentials
+            provider: aws-secrets-manager
