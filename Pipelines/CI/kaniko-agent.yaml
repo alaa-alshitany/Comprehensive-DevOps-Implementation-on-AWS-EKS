@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: kaniko-pod
+  namespace: argocd
 spec:
   containers:
     - name: kaniko
@@ -33,9 +34,6 @@ spec:
     - name: aws-secrets
       csi:
         driver: secrets-store.csi.k8s.io
-        readOnly: true  
+        readOnly: true
         volumeAttributes:
-          type: encrypted  
-        secrets:
-          - secretName: dockerhubcredentials
-            provider: aws-secrets-manager
+          secretProviderClass: "aws-secrets-manager"
