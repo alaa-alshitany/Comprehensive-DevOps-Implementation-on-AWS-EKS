@@ -28,3 +28,13 @@ spec:
   volumes:
   - name: kaniko-home
     emptyDir: {}
+
+  volumeMounts:
+  - name: aws-secrets
+    mountPath: /mnt/secrets/aws
+    readOnly: true
+volumes:
+- name: aws-secrets
+  secret:
+    secretName: dockerhubcredentials
+    provider: aws-secrets-manager
