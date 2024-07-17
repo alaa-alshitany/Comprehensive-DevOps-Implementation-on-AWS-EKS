@@ -17,8 +17,6 @@ spec:
     - name: aws-secrets
       mountPath: /mnt/secrets/aws
       readOnly: true
-    - name: csi-driver-token-volume  
-      mountPath: /var/run/secrets/csi-driver-token  
     env:
     - name: DOCKER_USERNAME
       valueFrom:
@@ -39,9 +37,3 @@ spec:
       readOnly: true
       volumeAttributes:
         secretProviderClass: "aws-secrets-manager"
-  - name: csi-driver-token-volume  # New volume definition for token
-    secret:
-      secretName: csi-driver-token  # Name of the secret holding token (ensure it exists)
-      items:
-      - key: token  # Key within the secret that holds the token
-        path: token  # Path within the pod to mount the token
