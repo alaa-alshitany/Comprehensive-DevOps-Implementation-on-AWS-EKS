@@ -4,37 +4,44 @@ metadata:
   name: kaniko-pod
   namespace: argocd
 spec:
-  serviceAccountName: eks-sa
   containers:
-    - name: kaniko
-      image: gcr.io/kaniko-project/executor:v1.7.0
-      args:
-        - "--dockerfile=dockerfile"
-        - "--context=git://github.com/mahmoud254/jenkins_nodejs_example/"
-        - "--destination=${env.registry_url}${env.image_name}:${env.image_tag}"
-      volumeMounts:
-        - name: kaniko-home
-          mountPath: /kaniko/.docker
-        - name: aws-secrets
-          mountPath: /mnt/secrets/aws
-          readOnly: true
-      env:
-        - name: DOCKER_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: dockerhubcredentials
-              key: username
-        - name: DOCKER_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: dockerhubcredentials
-              key: password
-  volumes:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:v1.7.0
+    args:
+    - "--dockerfile=dockerfile"
+    - "--context=git://github.com/mahmoud254/jenkins_nodejs_example/"
+    - "--destination=${env.registry_url}${env.image_name}:${env.image_tag}"
+    volumeMounts:
     - name: kaniko-home
-      emptyDir: {}
+      mountPath: /kaniko/.docker
     - name: aws-secrets
-      csi:
-        driver: secrets-store.csi.k8s.io
-        readOnly: true
-        volumeAttributes:
-          secretProviderClass: "aws-secrets-manager"
+      mountPath: /mnt/secrets/aws
+      readOnly: true
+    - name: csi-driver-token-volume  
+      mountPath: /var/run/secrets/csi-driver-token  
+    env:
+    - name: DOCKER_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: dockerhubcredentials
+          key: username
+    - name: DOCKER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: dockerhubcredentials
+          key: password
+  volumes:
+  - name: kaniko-home
+    emptyDir: {}
+  - name: aws-secrets
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: "aws-secrets-manager"
+  - name: csi-driver-token-volume  # New volume definition for token
+    secret:
+      secretName: csi-driver-token  # Name of the secret holding token (ensure it exists)
+      items:
+      - key: token  # Key within the secret that holds the token
+        path: token  # Path within the pod to mount the token
