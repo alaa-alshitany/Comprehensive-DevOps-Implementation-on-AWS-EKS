@@ -16,6 +16,7 @@ pipeline {
     stages {
         stage('Fetch Docker Hub Credentials') {
             steps {
+                 container('jnlp') {
                 script {
                     withAWS(credentials: 'aws-credentials-id') {
                         def secret = awsSecretsManager(secrets: [['$class': 'AWSSecretsManagerSecret', secretId: env.secret_name]])
@@ -25,6 +26,7 @@ pipeline {
                             echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
                         }
                     }
+                  }
                 }
             }
         }
