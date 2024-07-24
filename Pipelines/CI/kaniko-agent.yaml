@@ -15,7 +15,7 @@ spec:
     - name: kaniko-home
       mountPath: /kaniko/.docker
     - name: aws-secrets
-      mountPath: /mnt/secrets/aws
+      mountPath: /mnt/secrets
       readOnly: true
     env:
     - name: REGISTRY_URL
