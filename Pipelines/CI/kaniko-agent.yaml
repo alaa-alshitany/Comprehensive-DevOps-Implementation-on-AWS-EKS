@@ -9,8 +9,8 @@ spec:
     image: gcr.io/kaniko-project/executor:v1.7.0
     args:
     - "--dockerfile=dockerfile"
-    - "--context=git://github.com/mahmoud254/jenkins_nodejs_example/"
-    - "--destination=${env.registry_url}${env.image_name}:${env.image_tag}"
+    - "--context=/workspace"
+    - "--destination=${REGISTRY_URL}${IMAGE_NAME}:${IMAGE_TAG}"
     volumeMounts:
     - name: kaniko-home
       mountPath: /kaniko/.docker
@@ -18,6 +18,12 @@ spec:
       mountPath: /mnt/secrets/aws
       readOnly: true
     env:
+    - name: REGISTRY_URL
+      value: "docker.io/"
+    - name: IMAGE_NAME
+      value: "app-nodejs"
+    - name: IMAGE_TAG
+      value: "latest"
     - name: DOCKER_USERNAME
       valueFrom:
         secretKeyRef:
