@@ -21,7 +21,6 @@ pipeline {
                         withAWS(credentials: 'aws-credentials-id') {
                             def secret = awsSecretsManager(secrets: [['$class': 'AWSSecretsManagerSecret', secretId: env.secret_name]])
                             withCredentials([usernamePassword(credentialsId: '', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', secret: secret)]) {
-                                echo "Fetched Docker Hub credentials"
                                 echo "DOCKER_USERNAME: $DOCKER_USERNAME"
                                 echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
                                 
@@ -38,15 +37,14 @@ pipeline {
             steps {
                 container('kaniko') {
                     script {
-                        sh ""
-
+                        sh """
                         /kaniko/executor \
                             --dockerfile=/workspace/dockerfile \
                             --context=/workspace \
-                            --destination=${registry_url}${image_name}:${image_tag} \
+                            --destination=${registry_url}${image_name}:${image_tag} 
                             --build-arg DOCKER_USERNAME=$(cat /workspace/kaniko/username) \
                             --build-arg DOCKER_PASSWORD=$(cat /workspace/kaniko/password)
-                        ""
+                        """
                     }
                 }
             }
