@@ -11,8 +11,8 @@ spec:
     args:
     - "-c"
     - |
-      export DOCKER_USERNAME=$(cat /mnt/secrets/username)
-      export DOCKER_PASSWORD=$(cat /mnt/secrets/password)
+      export DOCKER_USERNAME=$(cat /mnt/secrets/dockerhubcredentials | jq -r '.username')
+      export DOCKER_PASSWORD=$(cat /mnt/secrets/dockerhubcredentials | jq -r '.password')
       /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=${REGISTRY_URL}${IMAGE_NAME}:${IMAGE_TAG}
     volumeMounts:
     - name: kaniko-home
