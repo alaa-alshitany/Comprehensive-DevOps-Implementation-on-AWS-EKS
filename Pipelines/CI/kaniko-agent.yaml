@@ -11,17 +11,6 @@ spec:
     - name: aws-secrets
       mountPath: /mnt/secrets
       readOnly: true
-    env:
-    - name: DOCKER_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: dockerhubcredentials
-          key: username
-    - name: DOCKER_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: dockerhubcredentials
-          key: password
   volumes:
   - name: aws-secrets
     csi:
