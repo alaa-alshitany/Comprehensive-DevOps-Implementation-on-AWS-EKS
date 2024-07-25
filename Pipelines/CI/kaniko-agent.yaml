@@ -7,10 +7,13 @@ spec:
   containers:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.7.0
+    command: ["/bin/sh"]
     args:
-    - "--dockerfile=dockerfile"
-    - "--context=/workspace"
-    - "--destination=${REGISTRY_URL}${IMAGE_NAME}:${IMAGE_TAG}"
+    - "-c"
+    - |
+      export DOCKER_USERNAME=$(cat /mnt/secrets/username)
+      export DOCKER_PASSWORD=$(cat /mnt/secrets/password)
+      /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=${REGISTRY_URL}${IMAGE_NAME}:${IMAGE_TAG}
     volumeMounts:
     - name: kaniko-home
       mountPath: /kaniko/.docker
@@ -24,16 +27,6 @@ spec:
       value: "app-nodejs"
     - name: IMAGE_TAG
       value: "latest"
-    - name: DOCKER_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: dockerhubcredentials
-          key: username
-    - name: DOCKER_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: dockerhubcredentials
-          key: password
   volumes:
   - name: kaniko-home
     emptyDir: {}
