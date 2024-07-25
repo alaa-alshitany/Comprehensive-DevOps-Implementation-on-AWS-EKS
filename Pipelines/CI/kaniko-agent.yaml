@@ -11,7 +11,7 @@ spec:
     - name: kaniko-home
       mountPath: /kaniko/.docker
     - name: secret-storage
-      mountPath: /workspace/kaniko
+      mountPath: /mnt/secrets
       readOnly: true
     env:
     - name: DOCKER_USERNAME
@@ -30,7 +30,7 @@ spec:
     - name: kaniko-home
       mountPath: /kaniko/.docker
     - name: secret-storage
-      mountPath: /workspace/kaniko
+      mountPath: /mnt/secrets
       readOnly: true
   volumes:
   - name: kaniko-home
