@@ -18,7 +18,7 @@ pipeline {
             steps {
                 container('jnlp') {
                     script {
-                        withAWS(credentials: 'aws-credentials-id') {
+                        withAWS(credentials: 'aws-credentials-id', region: env.aws_region) {
                             def secret = awsSecretsManager(secrets: [['$class': 'AWSSecretsManagerSecret', secretId: env.secret_name]])
                             withCredentials([usernamePassword(credentialsId: '', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', secret: secret)]) {
                                 echo "DOCKER_USERNAME: $DOCKER_USERNAME"

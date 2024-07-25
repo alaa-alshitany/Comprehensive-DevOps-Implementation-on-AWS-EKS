@@ -13,7 +13,7 @@ spec:
     - |
       export DOCKER_USERNAME=$(cat /mnt/secrets/dockerhubcredentials | jq -r '.username')
       export DOCKER_PASSWORD=$(cat /mnt/secrets/dockerhubcredentials | jq -r '.password')
-      /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=${REGISTRY_URL}${IMAGE_NAME}:${IMAGE_TAG}
+      /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=${REGISTRY_URL}${IMAGE_NAME}:${IMAGE_TAG} --verbosity=debug
     volumeMounts:
     - name: kaniko-home
       mountPath: /kaniko/.docker
@@ -22,7 +22,7 @@ spec:
       readOnly: true
     env:
     - name: REGISTRY_URL
-      value: "docker.io/"
+      value: "docker.io/alaa872/"
     - name: IMAGE_NAME
       value: "app-nodejs"
     - name: IMAGE_TAG
