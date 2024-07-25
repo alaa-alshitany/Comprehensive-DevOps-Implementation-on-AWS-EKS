@@ -41,7 +41,7 @@ pipeline {
                         /kaniko/executor \
                             --dockerfile=/workspace/dockerfile \
                             --context=/workspace \
-                            --destination=${registry_url}${image_name}:${image_tag} 
+                            --destination=${registry_url}${image_name}:${image_tag} \
                             --build-arg DOCKER_USERNAME=$(cat /workspace/kaniko/username) \
                             --build-arg DOCKER_PASSWORD=$(cat /workspace/kaniko/password)
                         """
