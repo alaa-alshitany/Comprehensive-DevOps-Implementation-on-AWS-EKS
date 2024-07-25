@@ -6,7 +6,7 @@ metadata:
 spec:
   containers:
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:v1.7.0
+    image: gcr.io/kaniko-project/executor:debug
     volumeMounts:
     - name: aws-secrets
       mountPath: /mnt/secrets
