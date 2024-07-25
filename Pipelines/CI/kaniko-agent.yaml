@@ -26,12 +26,12 @@ spec:
       value: "latest"
     - name: DOCKER_USERNAME
       valueFrom:
-        configMapKeyRef:
+        secretKeyRef:
           name: aws-secrets
           key: username
     - name: DOCKER_PASSWORD
       valueFrom:
-        configMapKeyRef:
+        secretKeyRef:
           name: aws-secrets
           key: password
   volumes:
