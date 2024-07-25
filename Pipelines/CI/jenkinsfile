@@ -6,34 +6,23 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = 'app-nodejs'
-        IMAGE_TAG = 'latest'
-        REGISTRY_URL = 'docker.io/alaa872/'
-        AWS_REGION = 'us-east-1'
-        SECRET_NAME = 'dockerhubcredentials'
+        image_name = 'app-nodejs'
+        image_tag = 'latest'
+        registry_url = 'docker.io/alaa872/'
+        aws_region = 'us-east-1'
+        secret_name = 'dockerhubcredentials'
     }
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                container('jnlp') {
-                    script {
-                        sh 'git clone -b rds_redis https://github.com/mahmoud254/jenkins_nodejs_example.git'
-                        sh 'ls -la'
-                    }
-                }
-            }
-        }
-
         stage('Fetch Docker Hub Credentials') {
             steps {
                 container('jnlp') {
                     script {
-                        withAWS(credentials: 'aws-credentials-id', region: env.AWS_REGION) {
-                            def secret = awsSecretsManager(secrets: [[name: env.SECRET_NAME, versionStage: 'AWSCURRENT']])
-                            withCredentials([usernamePassword(credentialsId: 'dockerhubcredentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', secret: secret)]) {
-                                echo "DOCKER_USERNAME: ${env.DOCKER_USERNAME}"
-                                echo "DOCKER_PASSWORD: ${env.DOCKER_PASSWORD}"
+                        withAWS(credentials: 'aws-credentials-id') {
+                            def secret = awsSecretsManager(secrets: [['$class': 'AWSSecretsManagerSecret', secretId: env.secret_name]])
+                            withCredentials([usernamePassword(credentialsId: '', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', secret: secret)]) {
+                                echo "DOCKER_USERNAME: $DOCKER_USERNAME"
+                                echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
                             }
                         }
                     }
@@ -45,12 +34,15 @@ pipeline {
             steps {
                 container('kaniko') {
                     script {
-                        dir('jenkins_nodejs_example') {
-                            sh 'pwd'
-                            sh """
-                                /kaniko/executor --dockerfile=dockerfile --context=. --destination=${env.REGISTRY_URL}${env.IMAGE_NAME}:${env.IMAGE_TAG} --insecure
-                            """
-                        }
+                        sh """
+                        echo "Docker Username: \$DOCKER_USERNAME"
+                        echo "Docker Password: \$DOCKER_PASSWORD"
+                        echo "Dockerfile path: dockerfile"
+                        echo "Context path: /workspace"
+                        echo "Destination: \$registry_url\$image_name:\$image_tag"
+                        
+                        /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=\$registry_url\$image_name:\$image_tag --verbosity=debug
+                        """
                     }
                 }
             }
