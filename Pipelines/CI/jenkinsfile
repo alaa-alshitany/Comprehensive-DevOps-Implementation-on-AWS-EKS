@@ -16,19 +16,17 @@ pipeline {
     stages {
         stage('Fetch Docker Hub Credentials') {
             steps {
-                container('jnlp') {
-                    script {
-                        withAWS(credentials: 'aws-credentials-id') {
-                            def secret = awsSecretsManager(secrets: [['$class': 'AWSSecretsManagerSecret', secretId: env.secret_name]])
-                            withCredentials([usernamePassword(credentialsId: '', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', secret: secret)]) {
-                                echo "Fetched Docker Hub credentials"
-                                echo "DOCKER_USERNAME: $DOCKER_USERNAME"
-                                echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
-                                writeFile(file: '/workspace/kaniko/username', text: DOCKER_USERNAME)
-                                writeFile(file: '/workspace/kaniko/password', text: DOCKER_PASSWORD)
-                            }
+                 container('jnlp') {
+                script {
+                    withAWS(credentials: 'aws-credentials-id') {
+                        def secret = awsSecretsManager(secrets: [['$class': 'AWSSecretsManagerSecret', secretId: env.secret_name]])
+                        withCredentials([usernamePassword(credentialsId: '', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', secret: secret)]) {
+                            echo "Fetched Docker Hub credentials"
+                            echo "DOCKER_USERNAME: $DOCKER_USERNAME"
+                            echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
                         }
                     }
+                  }
                 }
             }
         }
@@ -38,10 +36,10 @@ pipeline {
                 container('kaniko') {
                     script {
                         sh """
-                            echo \$DOCKER_USERNAME
-                            echo \$DOCKER_PASSWORD
+                        echo \$DOCKER_USERNAME
+                        echo \$DOCKER_PASSWORD
 
-                            /kaniko/executor --dockerfile=/workspace/dockerfile --context=/workspace --build-arg DOCKER_USERNAME=$(cat /workspace/kaniko/username) --build-arg DOCKER_PASSWORD=$(cat /workspace/kaniko/password) --destination=${registry_url}${image_name}:${image_tag} 
+                        /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=\$registry_url\$image_name:\$image_tag
                         """
                     }
                 }
