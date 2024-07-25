@@ -11,9 +11,19 @@ pipeline {
         REGISTRY_URL = 'docker.io/alaa872/'
         AWS_REGION = 'us-east-1'
         SECRET_NAME = 'dockerhubcredentials'
+        GIT_REPO_URL = 'https://github.com/mahmoud254/jenkins_nodejs_example'
+        GIT_BRANCH = 'rds_redis'
     }
 
     stages {
+        stage('Checkout Code') {
+            steps {
+                container('jnlp') {
+                    git url: env.GIT_REPO_URL, branch: env.GIT_BRANCH
+                }
+            }
+        }
+
         stage('Fetch Docker Hub Credentials') {
             steps {
                 container('jnlp') {
@@ -46,12 +56,6 @@ pipeline {
                     }
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: '**/kaniko-build.log', allowEmptyArchive: true
         }
     }
 }
