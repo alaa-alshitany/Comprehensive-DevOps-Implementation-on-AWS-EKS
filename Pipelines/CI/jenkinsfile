@@ -20,9 +20,7 @@ pipeline {
                     script {
                         withAWS(credentials: 'aws-credentials-id', region: env.AWS_REGION) {
                             def secret = awsSecretsManager(secrets: [[name: env.SECRET_NAME, versionStage: 'AWSCURRENT']])
-                            withCredentials([usernamePassword(credentialsId: '', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', secret: secret)]) {
-                                env.DOCKER_USERNAME = secret.username
-                                env.DOCKER_PASSWORD = secret.password
+                            withCredentials([usernamePassword(credentialsId: 'dockerhubcredentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', secret: secret)]) {
                                 echo "DOCKER_USERNAME: ${env.DOCKER_USERNAME}"
                                 echo "DOCKER_PASSWORD: ${env.DOCKER_PASSWORD}"
                             }
@@ -48,6 +46,12 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: '**/kaniko-build.log', allowEmptyArchive: true
         }
     }
 }
