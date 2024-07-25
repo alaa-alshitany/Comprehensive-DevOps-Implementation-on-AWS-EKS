@@ -13,6 +13,17 @@ spec:
     - name: secret-storage
       mountPath: /workspace/kaniko
       readOnly: true
+    env:
+    - name: DOCKER_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: dockerhubcredentials
+          key: DOCKER_USERNAME
+    - name: DOCKER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: dockerhubcredentials
+          key: DOCKER_PASSWORD
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.7.0
     volumeMounts:
