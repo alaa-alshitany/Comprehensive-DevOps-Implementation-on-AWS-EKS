@@ -26,13 +26,13 @@ spec:
       value: "latest"
     - name: DOCKER_USERNAME
       valueFrom:
-        secretKeyRef:
-          name: dockerhubcredentials
+        configMapKeyRef:
+          name: aws-secrets
           key: username
     - name: DOCKER_PASSWORD
       valueFrom:
-        secretKeyRef:
-          name: dockerhubcredentials
+        configMapKeyRef:
+          name: aws-secrets
           key: password
   volumes:
   - name: kaniko-home
