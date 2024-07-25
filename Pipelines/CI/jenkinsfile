@@ -38,8 +38,7 @@ pipeline {
             steps {
                 container('kaniko') {
                     script {
-                        sh """
-                        echo "Building Docker image with Kaniko"
+                        sh ""
 
                         /kaniko/executor \
                             --dockerfile=/workspace/dockerfile \
@@ -47,7 +46,7 @@ pipeline {
                             --destination=${registry_url}${image_name}:${image_tag} \
                             --build-arg DOCKER_USERNAME=$(cat /workspace/kaniko/username) \
                             --build-arg DOCKER_PASSWORD=$(cat /workspace/kaniko/password)
-                        """
+                        ""
                     }
                 }
             }
