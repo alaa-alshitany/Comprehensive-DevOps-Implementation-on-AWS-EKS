@@ -19,7 +19,11 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 container('jnlp') {
-                    git url: env.GIT_REPO_URL, branch: env.GIT_BRANCH
+                    script {
+                        echo "Cloning repository from ${env.GIT_REPO_URL} branch ${env.GIT_BRANCH}"
+                        git url: env.GIT_REPO_URL, branch: env.GIT_BRANCH
+                        sh 'ls -la' 
+                    }
                 }
             }
         }
@@ -28,6 +32,7 @@ pipeline {
             steps {
                 container('jnlp') {
                     script {
+                        echo "Fetching Docker Hub credentials from AWS Secrets Manager"
                         withAWS(credentials: 'aws-credentials-id', region: env.AWS_REGION) {
                             def secret = awsSecretsManager(secrets: [[name: env.SECRET_NAME, versionStage: 'AWSCURRENT']])
                             withCredentials([usernamePassword(credentialsId: 'dockerhubcredentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD', secret: secret)]) {
@@ -40,17 +45,16 @@ pipeline {
             }
         }
 
-        stage('Build and Push Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 container('kaniko') {
                     script {
-                        sh """
-                        echo "Docker Username: ${env.DOCKER_USERNAME}"
-                        echo "Docker Password: ${env.DOCKER_PASSWORD}"
+                        echo "Starting Docker build process"
                         echo "Dockerfile path: dockerfile"
                         echo "Context path: /workspace"
                         echo "Destination: ${env.REGISTRY_URL}${env.IMAGE_NAME}:${env.IMAGE_TAG}"
 
+                        sh """
                         /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=${env.REGISTRY_URL}${env.IMAGE_NAME}:${env.IMAGE_TAG} --verbosity=debug
                         """
                     }
