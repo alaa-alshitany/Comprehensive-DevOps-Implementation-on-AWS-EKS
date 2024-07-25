@@ -7,28 +7,9 @@ spec:
   containers:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
-    args:
-    - "--dockerfile=dockerfile"
-    - "--context=git://github.com/mahmoud254/jenkins_nodejs_example/"
-    - "--destination=${env.registry_url}${env.image_name}:${env.image_tag}"
-    - "--context=/workspace"
-    - "--destination=${REGISTRY_URL}${IMAGE_NAME}:${IMAGE_TAG}"
     volumeMounts:
     - name: aws-secrets
       mountPath: /mnt/secrets
-      readOnly: true
-    env:
-    - name: REGISTRY_URL
-      value: "docker.io/"
-    - name: IMAGE_NAME
-      value: "app-nodejs"
-    - name: IMAGE_TAG
-      value: "latest"
-  - name: jnlp
-    image: jenkins/inbound-agent:4.3-4
-    args:
-    - '${computer.jnlpmac}'
-    - '${computer.name}'
   volumes:
   - name: aws-secrets
     csi:
