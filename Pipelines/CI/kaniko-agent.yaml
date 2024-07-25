@@ -11,6 +11,9 @@ spec:
     - name: aws-secrets
       mountPath: /mnt/secrets
       readOnly: true
+  - name: jnlp
+    image: jenkins/inbound-agent:4.3-4
+    args: ['${computer.jnlpmac}', '${computer.name}']
   volumes:
   - name: aws-secrets
     csi:
