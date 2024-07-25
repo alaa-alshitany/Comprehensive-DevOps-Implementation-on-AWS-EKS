@@ -10,13 +10,11 @@ spec:
     volumeMounts:
     - name: kaniko-home
       mountPath: /kaniko/.docker
+    - name: secret-storage
+      mountPath: /workspace/kaniko
+      readOnly: true
   - name: kaniko
     image: gcr.io/kaniko-project/executor:v1.7.0
-    command: ["/kaniko/executor"]
-    args:
-    - "--dockerfile=/workspace/dockerfile"
-    - "--context=/workspace"
-    - "--destination=${REGISTRY_URL}${IMAGE_NAME}:${IMAGE_TAG}"
     volumeMounts:
     - name: kaniko-home
       mountPath: /kaniko/.docker
@@ -27,4 +25,8 @@ spec:
   - name: kaniko-home
     emptyDir: {}
   - name: secret-storage
-    emptyDir: {}
+    csi:
+      driver: secrets-store.csi.k8s.io
+      readOnly: true
+      volumeAttributes:
+        secretProviderClass: "aws-secrets-manager"
