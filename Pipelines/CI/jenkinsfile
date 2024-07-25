@@ -24,6 +24,9 @@ pipeline {
                                 echo "Fetched Docker Hub credentials"
                                 echo "DOCKER_USERNAME: $DOCKER_USERNAME"
                                 echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
+                                
+                                writeFile(file: '/workspace/kaniko/username', text: DOCKER_USERNAME)
+                                writeFile(file: '/workspace/kaniko/password', text: DOCKER_PASSWORD)
                             }
                         }
                     }
@@ -36,13 +39,14 @@ pipeline {
                 container('kaniko') {
                     script {
                         sh """
-                        echo \$DOCKER_USERNAME
-                        echo \$DOCKER_PASSWORD
+                        echo "Building Docker image with Kaniko"
 
                         /kaniko/executor \
                             --dockerfile=/workspace/dockerfile \
                             --context=/workspace \
-                            --destination=${registry_url}${image_name}:${image_tag}
+                            --destination=${registry_url}${image_name}:${image_tag} \
+                            --build-arg DOCKER_USERNAME=$(cat /workspace/kaniko/username) \
+                            --build-arg DOCKER_PASSWORD=$(cat /workspace/kaniko/password)
                         """
                     }
                 }
