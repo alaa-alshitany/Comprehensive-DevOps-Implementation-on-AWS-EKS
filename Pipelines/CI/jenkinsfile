@@ -38,10 +38,10 @@ pipeline {
                 container('kaniko') {
                     script {
                         sh """
-                        echo \$DOCKER_USERNAME
-                        echo \$DOCKER_PASSWORD
+                            echo \$DOCKER_USERNAME
+                            echo \$DOCKER_PASSWORD
 
-                        /kaniko/executor --dockerfile=/workspace/dockerfile --context=/workspace --build-arg DOCKER_USERNAME=$(cat /workspace/kaniko/username) --build-arg DOCKER_PASSWORD=$(cat /workspace/kaniko/password) --destination=${registry_url}${image_name}:${image_tag} 
+                            /kaniko/executor --dockerfile=/workspace/dockerfile --context=/workspace --build-arg DOCKER_USERNAME=$(cat /workspace/kaniko/username) --build-arg DOCKER_PASSWORD=$(cat /workspace/kaniko/password) --destination=${registry_url}${image_name}:${image_tag} 
                         """
                     }
                 }
