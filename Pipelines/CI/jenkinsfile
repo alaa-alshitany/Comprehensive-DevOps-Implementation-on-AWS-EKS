@@ -35,10 +35,13 @@ pipeline {
                 container('kaniko') {
                     script {
                         sh """
-                        echo \$DOCKER_USERNAME
-                        echo \$DOCKER_PASSWORD
-
-                        /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=\$registry_url\$image_name:\$image_tag
+                        echo "Docker Username: \$DOCKER_USERNAME"
+                        echo "Docker Password: \$DOCKER_PASSWORD"
+                        echo "Dockerfile path: dockerfile"
+                        echo "Context path: /workspace"
+                        echo "Destination: \$registry_url\$image_name:\$image_tag"
+                        
+                        /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=\$registry_url\$image_name:\$image_tag --verbosity=debug
                         """
                     }
                 }
