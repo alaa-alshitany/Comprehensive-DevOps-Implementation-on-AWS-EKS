@@ -5,37 +5,39 @@ metadata:
   namespace: argocd
 spec:
   containers:
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:v1.7.0
+    args:
+    - "--dockerfile=dockerfile"
+    - "--context=/workspace"
+    - "--destination=$(REGISTRY_URL)$(IMAGE_NAME):$(IMAGE_TAG)"
     volumeMounts:
     - name: kaniko-home
       mountPath: /kaniko/.docker
-    - name: secret-storage
+    - name: aws-secrets
       mountPath: /mnt/secrets
       readOnly: true
     env:
+    - name: REGISTRY_URL
+      value: "docker.io/alaa872/"
+    - name: IMAGE_NAME
+      value: "app-nodejs"
+    - name: IMAGE_TAG
+      value: "latest"
     - name: DOCKER_USERNAME
       valueFrom:
         secretKeyRef:
-          name: dockerhubcredentials
-          key: DOCKER_USERNAME
+          name: aws-secrets
+          key: username
     - name: DOCKER_PASSWORD
       valueFrom:
         secretKeyRef:
-          name: dockerhubcredentials
-          key: DOCKER_PASSWORD
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:v1.7.0
-    volumeMounts:
-    - name: kaniko-home
-      mountPath: /kaniko/.docker
-    - name: secret-storage
-      mountPath: /mnt/secrets
-      readOnly: true
+          name: aws-secrets
+          key: password
   volumes:
   - name: kaniko-home
     emptyDir: {}
-  - name: secret-storage
+  - name: aws-secrets
     csi:
       driver: secrets-store.csi.k8s.io
       readOnly: true
