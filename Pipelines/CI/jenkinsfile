@@ -11,8 +11,6 @@ pipeline {
         REGISTRY_URL = 'docker.io/alaa872/'
         AWS_REGION = 'us-east-1'
         SECRET_NAME = 'dockerhubcredentials'
-        GIT_REPO_URL = 'https://github.com/mahmoud254/jenkins_nodejs_example'
-        GIT_BRANCH = 'rds_redis'
     }
 
     stages {
@@ -20,9 +18,8 @@ pipeline {
             steps {
                 container('jnlp') {
                     script {
-                        echo "Cloning repository from ${env.GIT_REPO_URL} branch ${env.GIT_BRANCH}"
-                        git url: env.GIT_REPO_URL, branch: env.GIT_BRANCH
-                        sh 'ls -la' 
+                        sh 'git clone -b rds_redis https://github.com/mahmoud254/jenkins_nodejs_example.git'
+                        sh 'ls -la'
                     }
                 }
             }
@@ -45,18 +42,16 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Push Docker Image') {
             steps {
                 container('kaniko') {
                     script {
-                        echo "Starting Docker build process"
-                        echo "Dockerfile path: dockerfile"
-                        echo "Context path: /workspace"
-                        echo "Destination: ${env.REGISTRY_URL}${env.IMAGE_NAME}:${env.IMAGE_TAG}"
-
-                        sh """
-                        /kaniko/executor --dockerfile=dockerfile --context=/workspace --destination=${env.REGISTRY_URL}${env.IMAGE_NAME}:${env.IMAGE_TAG} --verbosity=debug
-                        """
+                        dir('jenkins_nodejs_example') {
+                            sh 'pwd'
+                            sh """
+                                /kaniko/executor --dockerfile=dockerfile --context=. --destination=${env.REGISTRY_URL}${env.IMAGE_NAME}:${env.IMAGE_TAG} --insecure
+                            """
+                        }
                     }
                 }
             }
